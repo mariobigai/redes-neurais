@@ -28,7 +28,7 @@ class Adaline:
         # Adiciona w0 no vetor de pesos
         self.pesos.insert(0, self.w0)
 
-        while (self.epocas < 1000):
+        while (self.epocas < 100):
             erro = False
 
             for i in range(self.n_amostras):
@@ -41,12 +41,13 @@ class Adaline:
                 # Obter a saída da rede considerando g a função sinal
                 y = self.sinal(u)
                 # Verificar se a saída da rede é diferente da saída desejada
-                if u != self.saidas[i]:
+                if y != self.saidas[i]:
+                    print(y, u, self.saidas[i])
                     # Calcular o erro
-                    erro_aux = self.saidas[i] - u
+                    erro_aux = (self.saidas[i] - u)**2
                     # Fazer o ajuste dos pesos para cada elemento da amostra
                     for j in range(self.n_atributos + 1):
-                        self.pesos[j] = self.pesos[j] + self.taxa_aprendizado * erro_aux * self.amostras[i][j]
+                        self.pesos[j] = self.pesos[j] - self.taxa_aprendizado * 2 * erro_aux * self.amostras[i][j]
                     # Atualizar variável erro, já que erro é diferente de zero (existe)
                     erro = True
             # Atualizar contador de épocas

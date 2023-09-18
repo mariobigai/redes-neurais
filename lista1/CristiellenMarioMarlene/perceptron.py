@@ -28,7 +28,7 @@ class Perceptron:
         # Adiciona w0 no vetor de pesos
         self.pesos.insert(0, self.w0)
 
-        while (self.epocas < 1000):
+        while (self.epocas < 100):
             erro = False
 
             for i in range(self.n_amostras):
