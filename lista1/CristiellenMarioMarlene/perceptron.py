@@ -1,16 +1,26 @@
 import random
+import numpy as np
 
 class Perceptron:
-    def __init__(self, amostras, saidas, taxa_aprendizado=0.1, bias=1, w0=random.random()):
+    def __init__(self, amostras, saidas, max_epocas, taxa_aprendizado=0.1, bias=1, w0=random.random()):
         self.amostras = amostras
         self.saidas = saidas
         self.taxa_aprendizado = taxa_aprendizado
         self.epocas = 0
+        self.max_epocas = max_epocas
         self.bias = bias
         self.w0 = w0
+        self.pesos = []
+        self.pesos_hist = []
+
         self.n_amostras = len(amostras)  # número de linhas (amostras)
         self.n_atributos = len(amostras[0])  # número de colunas (atributos)
-        self.pesos = []
+        self.erros_list = [0]*self.n_amostras
+
+        self.erro = True
+
+        self.sum_erro_list = []
+        self.MSE_list = []
 
     ## Função sinal
     def sinal(self, u):
@@ -18,43 +28,75 @@ class Perceptron:
             return 0
         return 1
 
-    def treinar(self):
-        # Adiciona o Bias nas amostras
+    def adiciona_bias(self):
         for amostra in self.amostras:
             amostra.insert(0, self.bias)
-        # Gerar valores randômicos entre 0 e 1 (pesos) conforme o número de atributos
+
+    def inicializa_pesos(self):
         for i in range(self.n_atributos):
             self.pesos.append(random.random())
-        # Adiciona w0 no vetor de pesos
+        # Adiciona w0 no vetor de pesos - Peso do bias
         self.pesos.insert(0, self.w0)
+        self.pesos_hist.append(self.pesos)
 
-        while (self.epocas < 100):
-            erro = False
+    def calcula_discriminante(self, i):
+        # Inicializar discriminante
+        u = 0
+        # Para cada atributo (incluindo bias)
+        for j in range(self.n_atributos + 1):
+            # Multiplicar amostra e seu peso e também somar com o potencial que já tinha
+            u += self.pesos[j] * self.amostras[i][j]
+        return u
 
+    def treinar(self):
+        # Adiciona o Bias nas amostras
+        self.adiciona_bias()
+        # Gerar valores randômicos entre 0 e 1 (pesos) conforme o número de atributos (incluindo peso do bias)
+        self.inicializa_pesos()
+
+        def guarda_peso_atual():
+            peso_atual = [0] * (self.n_atributos + 1)
+            for j in range(self.n_atributos + 1):
+                peso_atual[j] = self.pesos[j]
+            self.pesos_hist.append(peso_atual)
+
+        # Condição de parada erro inexistente ou 100 épocas
+        while (self.epocas < self.max_epocas and self.erro):
+            # Guarda os pesos ajustados referente a época:
+            guarda_peso_atual()
+
+            #Percorre as amostras
             for i in range(self.n_amostras):
-                # Inicializar potencial de ativação
-                u = 0
-                # Para cada atributo...
-                for j in range(self.n_atributos + 1):
-                    # Multiplicar amostra e seu peso e também somar com o potencial que já tinha
-                    u += self.pesos[j] * self.amostras[i][j]
+                # calcula o discriminante
+                u = self.calcula_discriminante(i)
+
                 # Obter a saída da rede considerando g a função sinal
                 y = self.sinal(u)
+
+                # calcula o erro relacionado a amostra
+                erro_aux = self.saidas[i] - y
+                self.erros_list[i] = erro_aux
+
                 # Verificar se a saída da rede é diferente da saída desejada
                 if y != self.saidas[i]:
-                    # Calcular o erro
-                    erro_aux = self.saidas[i] - y
-                    # Fazer o ajuste dos pesos para cada elemento da amostra
+                    # Fazer o ajuste dos pesos para cada amostra (incluindo o peso do bias)
                     for j in range(self.n_atributos + 1):
                         self.pesos[j] = self.pesos[j] + self.taxa_aprendizado * erro_aux * self.amostras[i][j]
                     # Atualizar variável erro, já que erro é diferente de zero (existe)
-                    erro = True
+                    self.erro = True
+
+            # Faz somatória dos erros
+            sum_erro = np.sum([abs(erro) for erro in self.erros_list])
+
+            # Guarda somatória do erro relacionado a época
+            self.sum_erro_list.append(sum_erro)
+
+            # Verifica se a somatória do erro é aceitável
+            if sum_erro == 0:
+                self.erro = False
+
             # Atualizar contador de épocas
             self.epocas += 1
-
-            # Condição de parada erro inexistente ou 1000 épocas
-            if not erro:
-                break
 
     def teste(self, amostra):
         # Insere o bias na amostra
