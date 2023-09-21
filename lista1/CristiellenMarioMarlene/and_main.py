@@ -2,21 +2,25 @@ import numpy as np
 from matplotlib import pyplot as plt
 from perceptron import Perceptron
 
+# Porta Lógica AND ----------------------------------------------------------------
 entradas = [[0,0],
             [0,1],
             [1,0],
             [1,1]]
 saidas = [0,0,0,1]
+# ---------------------------------------------------------------------------------
 
 #Cria 10 redes Perceptron
 perceptron_list = [Perceptron(entradas, saidas, 100) for _ in range(10)]
 
 # Treina os 10 perceptrons
-for perceptron in perceptron_list:
-    perceptron.treinar()
+[perceptron.treinar() for perceptron in perceptron_list]
+
 
 x1 = np.linspace(-0.2,1.2)
 cont_redes = 1
+
+print(perceptron_list)
 
 #Plotagem----------------------------------------------------------------------------
 for perceptron in perceptron_list:

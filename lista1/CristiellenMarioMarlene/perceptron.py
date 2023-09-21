@@ -3,7 +3,8 @@ import numpy as np
 
 class Perceptron:
     def __init__(self, amostras, saidas, max_epocas, taxa_aprendizado=0.1, bias=1, w0=random.random()):
-        self.amostras = amostras
+        self.amostras = []
+        self.entradas = amostras
         self.saidas = saidas
         self.taxa_aprendizado = taxa_aprendizado
         self.epocas = 0
@@ -32,12 +33,26 @@ class Perceptron:
         for amostra in self.amostras:
             amostra.insert(0, self.bias)
 
+    def inicializa_amostras(self):
+        for amostra in self.entradas:
+            lista = []
+            for j in range(self.n_atributos):
+                lista.append(amostra[j])
+            self.amostras.append(lista)
+        self.adiciona_bias()
+
     def inicializa_pesos(self):
         for i in range(self.n_atributos):
             self.pesos.append(random.random())
         # Adiciona w0 no vetor de pesos - Peso do bias
         self.pesos.insert(0, self.w0)
         self.pesos_hist.append(self.pesos)
+
+    def guarda_peso_atual(self):
+        peso_atual = [0] * (self.n_atributos + 1)
+        for j in range(self.n_atributos + 1):
+            peso_atual[j] = self.pesos[j]
+        self.pesos_hist.append(peso_atual)
 
     def calcula_discriminante(self, i):
         # Inicializar discriminante
@@ -49,21 +64,16 @@ class Perceptron:
         return u
 
     def treinar(self):
-        # Adiciona o Bias nas amostras
-        self.adiciona_bias()
+        # Inicializa a lista de amostras e adiciona o Bias nas amostras
+        self.inicializa_amostras()
+        print(self.amostras)
         # Gerar valores randômicos entre 0 e 1 (pesos) conforme o número de atributos (incluindo peso do bias)
         self.inicializa_pesos()
-
-        def guarda_peso_atual():
-            peso_atual = [0] * (self.n_atributos + 1)
-            for j in range(self.n_atributos + 1):
-                peso_atual[j] = self.pesos[j]
-            self.pesos_hist.append(peso_atual)
 
         # Condição de parada erro inexistente ou 100 épocas
         while (self.epocas < self.max_epocas and self.erro):
             # Guarda os pesos ajustados referente a época:
-            guarda_peso_atual()
+            self.guarda_peso_atual()
 
             #Percorre as amostras
             for i in range(self.n_amostras):
