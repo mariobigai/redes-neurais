@@ -3,25 +3,26 @@ import numpy as np
 
 class Perceptron:
     def __init__(self, amostras, saidas, max_epocas, taxa_aprendizado=0.1, bias=1, w0=random.random()):
-        self.amostras = []
-        self.entradas = amostras
-        self.saidas = saidas
-        self.taxa_aprendizado = taxa_aprendizado
-        self.epocas = 0
-        self.max_epocas = max_epocas
+        self.n_amostras = len(amostras)  # número de linhas (amostras)
+        self.n_atributos = len(amostras[0])  # número de colunas (atributos)
+        self.erros_list = [0] * self.n_amostras
+
         self.bias = bias
         self.w0 = w0
         self.pesos = []
         self.pesos_hist = []
 
-        self.n_amostras = len(amostras)  # número de linhas (amostras)
-        self.n_atributos = len(amostras[0])  # número de colunas (atributos)
-        self.erros_list = [0]*self.n_amostras
+        self.amostras = self.inicializa_amostras(amostras)
+        self.saidas = saidas
+        self.taxa_aprendizado = taxa_aprendizado
+        self.epocas = 0
+        self.max_epocas = max_epocas
 
         self.erro = True
 
         self.sum_erro_list = []
         self.MSE_list = []
+        self.MSE_valor = 0
 
     ## Função sinal
     def sinal(self, u):
@@ -29,17 +30,20 @@ class Perceptron:
             return 0
         return 1
 
-    def adiciona_bias(self):
-        for amostra in self.amostras:
+    def adiciona_bias(self, lista_aux):
+        for amostra in lista_aux:
             amostra.insert(0, self.bias)
 
-    def inicializa_amostras(self):
-        for amostra in self.entradas:
+    def inicializa_amostras(self, amostras):
+        lista_aux = []
+        entradas = amostras
+        for amostra in entradas:
             lista = []
             for j in range(self.n_atributos):
                 lista.append(amostra[j])
-            self.amostras.append(lista)
-        self.adiciona_bias()
+            lista_aux.append(lista)
+        self.adiciona_bias(lista_aux)
+        return lista_aux
 
     def inicializa_pesos(self):
         for i in range(self.n_atributos):
@@ -64,9 +68,6 @@ class Perceptron:
         return u
 
     def treinar(self):
-        # Inicializa a lista de amostras e adiciona o Bias nas amostras
-        self.inicializa_amostras()
-        print(self.amostras)
         # Gerar valores randômicos entre 0 e 1 (pesos) conforme o número de atributos (incluindo peso do bias)
         self.inicializa_pesos()
 
@@ -101,12 +102,18 @@ class Perceptron:
             # Guarda somatória do erro relacionado a época
             self.sum_erro_list.append(sum_erro)
 
+            # Guarda erro quadrático
+            self.MSE_list.append(sum_erro**2)
+
             # Verifica se a somatória do erro é aceitável
             if sum_erro == 0:
                 self.erro = False
 
             # Atualizar contador de épocas
             self.epocas += 1
+
+        # Cálculo do erro quadrático médio
+        self.MSE_valor = (1/self.epocas)*np.sum(self.MSE_list)
 
     def teste(self, amostra):
         # Insere o bias na amostra
