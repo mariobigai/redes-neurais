@@ -27,7 +27,7 @@ class Perceptron:
     ## Função sinal
     def sinal(self, u):
         if u <= 0:
-            return 0
+            return -1
         return 1
 
     def adiciona_bias(self, lista_aux):
@@ -98,12 +98,13 @@ class Perceptron:
 
             # Faz somatória dos erros
             sum_erro = np.sum([abs(erro) for erro in self.erros_list])
+            sum_erro_quad = np.sum([erro ** 2 for erro in self.erros_list])
 
             # Guarda somatória do erro relacionado a época
-            self.sum_erro_list.append(sum_erro)
+            self.sum_erro_list.append((sum_erro)/len(self.erros_list))
 
             # Guarda erro quadrático
-            self.MSE_list.append(sum_erro**2)
+            self.MSE_list.append((sum_erro_quad)/len(self.erros_list))
 
             # Verifica se a somatória do erro é aceitável
             if sum_erro == 0:
