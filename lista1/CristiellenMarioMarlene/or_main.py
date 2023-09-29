@@ -13,8 +13,8 @@ bits_plot = [[0], [0], [0, 1, 1], [1, 0, 1]]
 # ---------------------------------------------------------------------------------
 
 #Cria 10 redes Perceptron e 10 redes Adaline
-perceptron_list = [Perceptron(entradas, saidas, 100) for _ in range(10)]
-adaline_list = [Adaline(entradas, saidas, 100) for _ in range(10)]
+perceptron_list = [Perceptron(entradas, saidas, 100, 0.1) for _ in range(10)]
+adaline_list = [Adaline(entradas, saidas, 100, 0.1) for _ in range(10)]
 
 # Treina os 10 perceptrons e 10 adalines
 [perceptron.treinar() for perceptron in perceptron_list]
