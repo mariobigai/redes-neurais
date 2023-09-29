@@ -26,5 +26,5 @@ salva_10_runs(adaline_list, 'ADALINE', 'PORTA AND', bits_plot)
 salva_melhor_de_run(perceptron_list, 'PERCEPTRON', 'PORTA AND', bits_plot)
 salva_melhor_de_run(adaline_list, 'ADALINE', 'PORTA AND', bits_plot)
 
-plota_MSE_grafico(perceptron_list, 'PERCEPTRON', 'PORTA AND', bits_plot)
-plota_MSE_grafico(adaline_list, 'ADALINE', 'PORTA AND', bits_plot)
+plota_MSE_grafico(perceptron_list, 'PERCEPTRON', 'PORTA AND')
+plota_MSE_grafico(adaline_list, 'ADALINE', 'PORTA AND')
