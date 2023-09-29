@@ -80,7 +80,7 @@ def salva_melhor_de_run(lista_de_redes, nome_da_rede, porta_logica, bits_plot):
     plt.savefig(f'Bests_{nome_da_rede}', dpi=500, orientation='portrait')
     plt.close(fig)
 
-def plota_MSE_grafico(lista_de_redes, nome_da_rede, porta_logica, bits_plot):
+def plota_MSE_grafico(lista_de_redes, nome_da_rede, porta_logica):
     if nome_da_rede == 'ADALINE':
         for rede in lista_de_redes:
             rede.MSE_list.pop(0)
