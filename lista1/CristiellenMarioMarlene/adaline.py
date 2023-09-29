@@ -2,7 +2,7 @@ import random
 import numpy as np
 
 class Adaline:
-    def __init__(self, amostras, saidas, max_epocas, taxa_aprendizado=0.1, bias=1, w0=random.random()):
+    def __init__(self, amostras, saidas, max_epocas, taxa_aprendizado, bias=1, w0=random.random()):
         self.n_amostras = len(amostras)  # número de linhas (amostras)
         self.n_atributos = len(amostras[0])  # número de colunas (atributos)
         self.erros_list = [0] * self.n_amostras
@@ -74,8 +74,10 @@ class Adaline:
 
         diff_MSE = 100
 
+        sum_erro = 100
+
         # Condição de parada erro inexistente ou 100 épocas
-        while (self.epocas < self.max_epocas and diff_MSE > 0.01):
+        while (self.epocas < self.max_epocas and diff_MSE > 1e-6):
             # Guarda os pesos ajustados referente a época:
             self.guarda_peso_atual()
 
@@ -108,10 +110,11 @@ class Adaline:
             # Atualizar contador de épocas
             self.epocas += 1
 
-        # Cálculo do erro quadrático médio - levando em conta as iterações
+        #Cálculo do erro quadrático médio - levando em conta as iterações
         self.MSE_valor = (1/self.epocas) * np.sum(self.MSE_list)
 
     def teste(self, amostra):
+        amostra = amostra.copy()
         # Insere o bias na amostra
         amostra.insert(0, self.bias)
         # Inicializar potencial de ativação
@@ -122,4 +125,4 @@ class Adaline:
             u += self.pesos[i] * amostra[i]
         # Obter a saída da rede considerando g a função sinal
         y = self.sinal(u)
-        print('Classe: %d' % y)
+        return y

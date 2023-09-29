@@ -2,7 +2,7 @@ import random
 import numpy as np
 
 class Perceptron:
-    def __init__(self, amostras, saidas, max_epocas, taxa_aprendizado=0.1, bias=1, w0=random.random()):
+    def __init__(self, amostras, saidas, max_epocas, taxa_aprendizado, bias=1, w0=random.uniform(-1,1)):
         self.n_amostras = len(amostras)  # número de linhas (amostras)
         self.n_atributos = len(amostras[0])  # número de colunas (atributos)
         self.erros_list = [0] * self.n_amostras
@@ -47,7 +47,7 @@ class Perceptron:
 
     def inicializa_pesos(self):
         for i in range(self.n_atributos):
-            self.pesos.append(random.random())
+            self.pesos.append(random.uniform(-1,1))
         # Adiciona w0 no vetor de pesos - Peso do bias
         self.pesos.insert(0, self.w0)
         self.pesos_hist.append(self.pesos)
@@ -117,6 +117,7 @@ class Perceptron:
         self.MSE_valor = (1/self.epocas)*np.sum(self.MSE_list)
 
     def teste(self, amostra):
+        amostra = amostra.copy()
         # Insere o bias na amostra
         amostra.insert(0, self.bias)
         # Inicializar potencial de ativação
@@ -127,4 +128,4 @@ class Perceptron:
             u += self.pesos[i] * amostra[i]
         # Obter a saída da rede considerando g a função sinal
         y = self.sinal(u)
-        print('Classe: %d' % y)
+        return y
