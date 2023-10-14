@@ -1,7 +1,7 @@
 import numpy as np
 
 class MLP:
-    def __init__(self, layer_sizes, learning_rate=0.01, bias_init_value=1.0):
+    def __init__(self, layer_sizes, learning_rate=0.01):
         self.layer_sizes = layer_sizes
         self.learning_rate = learning_rate
         self.num_layers = len(layer_sizes)
@@ -27,21 +27,23 @@ class MLP:
         # Calcula a saída para cada camada
         for i in range(self.num_layers - 1):
             activation = np.dot(self.outputs[i], self.weights[i]) + self.biases[i]
-            output = self.sigmoid(activation)
+            if i == self.num_layers-2: #Camada de saída - função de ativação identidade
+                output = activation
+            else:
+                output = self.sigmoid(activation)
 
             self.activations.append(activation)
             self.outputs.append(output)
 
         return self.outputs[-1]
 
-    def backpropagation(self, X, y, output):
+    def backpropagation(self, y, output):
         errors = [y - output]
 
         # Calcula os erros retropropagados
         for i in range(self.num_layers - 2, 0, -1):
             error = errors[-1].dot(self.weights[i].T)
             errors.append(error * self.sigmoid_derivative(self.outputs[i]))
-
         errors.reverse()
 
         # Atualiza os pesos e bias usando gradiente descendente
@@ -55,7 +57,7 @@ class MLP:
             output = self.feedforward(X)
 
             # Backpropagation
-            self.backpropagation(X, y, output)
+            self.backpropagation(y, output)
 
             # Calcular e armazenar o erro quadrático médio (MSE)
             mse = np.mean(np.square(y - output))
@@ -69,26 +71,3 @@ class MLP:
             if mse < target_mse:
                 print(f'Atingiu a taxa de precisão desejada (MSE < {target_mse}). Parando o treinamento na época {epoch}.')
                 break
-
-# Exemplo de uso
-if __name__ == "__main__":
-    # Dados de entrada e saída
-    X = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
-    y = np.array([[0], [1], [1], [0]])
-
-    # Criação da MLP com 2 camadas ocultas (4 neurônios cada)
-    mlp = MLP(layer_sizes=[2, 3, 1], learning_rate=0.01)
-
-    # Treinamento da MLP com critério de parada baseado em MSE
-    target_mse = 0.001
-    mlp.train(X, y, epochs=100000, target_mse=target_mse)
-
-    # Teste da MLP
-    test_input = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
-    predictions = mlp.feedforward(test_input)
-    print("Predictions:")
-    print(predictions)
-
-    # # Imprimir o histórico de erro
-    # print("MSE History:")
-    # print(mlp.mse_history)
