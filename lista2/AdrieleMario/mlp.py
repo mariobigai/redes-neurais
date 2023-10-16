@@ -63,11 +63,7 @@ class MLP:
             mse = np.mean(np.square(y - output))
             self.mse_history.append(mse)
 
-            # Imprime o erro a cada 1000 épocas
-            if epoch % 1000 == 0:
-                print(f'Epoch {epoch}, MSE: {mse}')
 
             # Verifica se atingiu a taxa de precisão desejada
             if mse < target_mse:
-                print(f'Atingiu a taxa de precisão desejada (MSE < {target_mse}). Parando o treinamento na época {epoch}.')
                 break
