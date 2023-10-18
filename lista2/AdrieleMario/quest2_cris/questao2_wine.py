@@ -1,3 +1,4 @@
+from ucimlrepo import fetch_ucirepo
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
@@ -32,6 +33,7 @@ dif = x_max - x_min
 mse_results = []
 accuracy_results = []
 previsao_test = []
+min_losses = []
 
 # Executar o código 10 vezes
 for rodada in range(10):
@@ -41,10 +43,10 @@ for rodada in range(10):
 
     # Criar e treinar o modelo (você pode ajustar o modelo e os hiperparâmetros)
     model = Sequential()
-    model.add(Dense(5, input_dim=13, activation='tanh'))
+    model.add(Dense(15, input_dim=13, activation='tanh'))
     model.add(Dense(3, activation='softmax'))
     model.compile(optimizer='sgd', loss=['sparse_categorical_crossentropy', 'mse'], metrics=['accuracy'])
-    historico = model.fit(x_train, y_train, validation_data=(x_val, y_val), batch_size=5, epochs=150)
+    historico = model.fit(x_train, y_train, validation_data=(x_val, y_val), batch_size=5, epochs=500)
 
     # Avaliar o modelo
     resultado = model.evaluate(x_test, y_test)
@@ -118,23 +120,46 @@ for rodada in range(10):
     plt.show()
 
     mse_treino = np.array(historico.history['loss'])
-    mse_treino = (((mse_treino + 1) / 2) * dif) + x_min
-    mse_treino = mse_treino.tolist()
+    # mse_treino= (((mse_treino + 1)/2)*dif) + x_min
+    # mse_treino=mse_treino.tolist()
 
     mse_val = np.array(historico.history['val_loss'])
-    mse_val = (((mse_val + 1) / 2) * dif) + x_min
-    mse_val = mse_val.tolist()
+    # mse_val= (((mse_val + 1)/2)*dif) + x_min
+    # mse_val=mse_val.tolist()
 
     plt.plot(mse_treino)
     plt.plot(mse_val)
     plt.xlabel('épocas')
     plt.ylabel('perda')
     plt.legend(['Treino', 'Validação'])
+
+    # Encontre o índice da época com a menor perda de validação
+    min_val_loss_index = np.argmin(mse_val)
+    min_val_loss = mse_val[min_val_loss_index]
+
+    # Marque o ponto correspondente à menor perda de validação no gráfico
+    plt.scatter(min_val_loss_index, min_val_loss, marker='o', color='red',
+                label=f'Menor Perda de Validação: {min_val_loss:.3f}')
+
+    # Adicione uma legenda para o ponto marcado
+    plt.legend(loc='best')
+
+    # Mostre o gráfico
     plt.show()
 
-mse_results = np.array(mse_results)
-mse_results = (((mse_results + 1) / 2) * dif) + x_min
-mse_results = mse_results.tolist()
+    min_val_loss_index = np.argmin(historico.history['val_loss'])
+    min_val_loss = historico.history['val_loss'][min_val_loss_index]
+    min_losses.append((min_val_loss))
+
+plt.figure(figsize=(10, 6))
+for rodada in range(10):
+    plt.plot(mse_results[rodada], label=f'Rodada {rodada + 1}- erro: {min_losses[rodada]:.3f}')
+
+plt.xlabel('Épocas')
+plt.ylabel('Loss (Perda)')
+plt.legend()
+plt.title('Loss (Perda) - Todas as Rodadas')
+plt.show()
 
 plt.figure(figsize=(8, 6))
 plt.boxplot(previsao_test)
