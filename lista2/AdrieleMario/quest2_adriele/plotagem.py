@@ -1,32 +1,34 @@
-from ucimlrepo import fetch_ucirepo
-from sklearn import datasets
-from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense
-from sklearn.metrics import confusion_matrix
-from sklearn.utils.multiclass import unique_labels
-from tensorflow.keras.regularizers import l2
-import seaborn as sns
-from sklearn.metrics import mean_squared_error
 
-def plot_MSE(rede,dados):
+def save_plot_as_image(fig, file_name):
+    fig.savefig(file_name, dpi=500, format='png', orientation='portrait')
+
+def plot_MSE(rede,dados,contador):
     plt.plot(rede.historico.history['loss'])
     plt.plot(rede.historico.history['val_loss'])
-    plt.title(f'MSE por época - {dados}')
+    plt.title(f'MSE por época - {dados} - Run:{contador}')
     plt.xlabel('Épocas')
     plt.ylabel('MSE')
-    plt.legend(['Treino', 'Validação'])
-    plt.savefig(f'MSE por Épocas - {dados} - Run único.png', dpi=500, format='png',orientation='portrait')
+    plt.legend(['Treino', f'Validação - Perda: {rede.resultado[0]}'])
+    save_plot_as_image(plt, f'MSE_por_Epocas_{dados}_Run_{contador}.png')
+    plt.show()
+
+def plot_ACC(rede,dados,contador):
+    plt.plot(rede.historico.history['accuracy'])
+    plt.plot(rede.historico.history['val_accuracy'])
+    plt.title(f'Acurácia por época - {dados} - Run:{contador}')
+    plt.xlabel('Épocas')
+    plt.ylabel('Acurácia')
+    plt.legend(['Treino', f'Validação - Acerto: {rede.resultado[1]}'])
+    save_plot_as_image(plt, f'Acuracia_por_Epocas_{dados}_Run_{contador}.png')
     plt.show()
 
 def plot_MSEt(lista_de_rede, dados):
     cont_redes = 1
     fig, ax = plt.subplots(figsize=(15, 8))
     for rede in lista_de_rede:
-        ax.plot(rede.historico.history['loss'], linestyle='-', linewidth=3, label=f'T: {cont_redes} - Perda: {rede.resultado[0]}')
+        ax.plot(rede.historico.history['loss'], linestyle='-', linewidth=3, label=f'T: {cont_redes} - Epoch: {rede.min_epoch+1} - {rede.mse_history[rede.min_epoch]}')
         cont_redes += 1
     ax.legend()
     ax.grid()
@@ -40,7 +42,7 @@ def plot_MSEv(lista_de_rede, dados):
     cont_redes = 1
     fig, ax = plt.subplots(figsize=(15, 8))
     for rede in lista_de_rede:
-        ax.plot(rede.historico.history['val_loss'], linestyle='-', linewidth=3, label=f'T: {cont_redes}')
+        ax.plot(rede.historico.history['val_loss'], linestyle='-', linewidth=3, label=f'T: {cont_redes} - Perda: {rede.resultado[0]}')
         cont_redes += 1
     ax.legend()
     ax.grid()
@@ -68,7 +70,7 @@ def plot_ACCv(lista_de_rede, dados):
     cont_redes = 1
     fig, ax = plt.subplots(figsize=(15, 8))
     for rede in lista_de_rede:
-        ax.plot(rede.historico.history['val_accuracy'], linestyle='-', linewidth=3, label=f'T: {cont_redes}')
+        ax.plot(rede.historico.history['val_accuracy'], linestyle='-', linewidth=3, label=f'T: {cont_redes} - Acerto: {rede.resultado[1]}')
         cont_redes += 1
     ax.legend()
     ax.grid()
@@ -108,6 +110,18 @@ def plotMatrizConf(lista_de_rede, dados):
 
         #Adicionar uma legenda
         plt.title(f'Matriz de Confusão - {dados} - T:{contador}')
-        plt.savefig(f'Matriz de confusão  - {dados} - T: {contador}', dpi=500, format='png', orientation='portrait')
+        save_plot_as_image(plt, f'Matriz_de_Confusão{dados}_Run_{contador}.png')
         plt.show()
         contador += 1
+
+def plot_boxplot(lista_de_rede, dados):
+    perdas = [rede.resultado[0] for rede in lista_de_rede]
+
+    fig, ax = plt.subplots(figsize=(8, 6))
+
+    ax.boxplot(perdas)
+    ax.set_title(f'Boxplot do MSE - {dados}')
+    ax.set_xticklabels(['MSE'])
+
+    plt.savefig(f'Boxplot do MSE - {dados}.png', dpi=500, format='png', orientation='portrait')
+    plt.show()

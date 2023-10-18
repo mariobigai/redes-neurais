@@ -17,6 +17,8 @@ class MLP:
         self.n_entrada = n_entrada
         self.n_saida = n_saida
         self.epochs = epochs
+        self.mse_history = []
+        self.val_mse_history = []
 
     def mlp(self):
 
@@ -43,15 +45,26 @@ class MLP:
         model.compile(optimizer=SGD(learning_rate=self.eta), loss=['sparse_categorical_crossentropy', 'mse'], metrics=['accuracy'])
 
         # Treinar o modelo
-        self.historico = model.fit(x_train, y_train, validation_data=(x_val, y_val), batch_size=50, epochs=self.epochs)
+        self.historico = model.fit(x_train, y_train, validation_data=(x_val, y_val), batch_size=50, epochs=self.epochs, verbose=0)
+
+        self.mse_history = self.historico.history['loss']  # valores do MSE durante o treinamento
+        self.val_mse_history = self.historico.history['val_loss']  # valores do MSE durante o treinamento
+        self.acc_history = self.historico.history['accuracy']  # valores do acuracia durante o treinamento
+
+        self.min_epoch = np.argmin(self.val_mse_history)  # Encontra o índice da época com o menor valor de erro
+        print(f"A época com o menor valor de erro na validação foi {self.min_epoch + 1} com valor {np.min(self.val_mse_history)}")
+
+        print("MSE no teste: %.3f" % self.mse_history[-1])
+        print("Acurácia no teste: %.3f" % self.acc_history[-1])
 
         # Avaliar o modelo no conjunto de teste
-        self.resultado = model.evaluate(x_test, y_test)
-        print("Perda do teste: %.3f" % (self.resultado[0]))
+        self.resultado = model.evaluate(x_test, y_test, verbose = 0)
 
-        mse_history = []
+        print("MSE na validação: %.3f" % (self.resultado[0]))
+        print("Acurácia na validação: %.3f" % (self.resultado[1]))
+
         # Fazer previsões no conjunto de teste
-        previsoes = model.predict(x_test)
+        previsoes = model.predict(x_test,verbose=0)
 
         previsoes = (((previsoes + 1) / 2) * dif) + x_min
 
