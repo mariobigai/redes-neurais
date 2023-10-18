@@ -20,10 +20,8 @@ epochs = 150
 eta = 0.01
 d_possiveis = [1,2,3]
 
-
-
 #FAZ A VARREDURA DOS NEURONIOS
-for i in range(11):
+for i in range(3):
     print(f'Configuração com {neuronios} neuronios =============================================')
     contador = 1
     #Cria as 10MLP's
@@ -31,7 +29,8 @@ for i in range(11):
     #Treina as 10 MLP's
     for wine in wine_list:
         print(f'T: {contador} -----------------------')
-        wine.mlp()
+        filepath = str(neuronios) + 'N1HL' + str(contador)
+        wine.mlp(filepath)
         plot_MSE(wine, f'Wine - {neuronios}N1HL', contador)
         plot_ACC(wine, f'Wine - {neuronios}N1HL', contador)
         contador += 1
@@ -43,4 +42,4 @@ for i in range(11):
     plot_ACCv(wine_list,f'Wine - {neuronios}N1HL')
     plotMatrizConf(wine_list,f'Wine - {neuronios}N1HL')
     plot_boxplot(wine_list,f'Wine - {neuronios}N1HL')
-    neuronios += 1
+    neuronios += 10

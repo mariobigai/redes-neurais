@@ -1,3 +1,4 @@
+import os
 from sklearn.model_selection import train_test_split
 import numpy as np
 from tensorflow.keras.models import Sequential
@@ -5,7 +6,7 @@ from tensorflow.keras.layers import Dense
 from sklearn.metrics import confusion_matrix
 from sklearn.utils.multiclass import unique_labels
 from tensorflow.keras.optimizers import SGD
-
+from tensorflow.keras.callbacks import ModelCheckpoint
 
 class MLP:
     def __init__(self,x,y,d,eta,neuronios,n_entrada,n_saida,epochs):
@@ -20,8 +21,8 @@ class MLP:
         self.mse_history = []
         self.val_mse_history = []
 
-    def mlp(self):
-
+    def mlp(self, arq_run):
+        checkpoint_filepath = './tmp/run' + arq_run
         d1 = self.d[0]
         d2 = self.d[1]
         d3 = self.d[2]
@@ -37,15 +38,22 @@ class MLP:
         x_train, x_temp, y_train, y_temp = train_test_split(dados_normalizados, self.y, test_size=0.3, random_state=42)
         x_val, x_test, y_val, y_test = train_test_split(x_temp, y_temp, test_size=0.5, random_state=42)
 
-        # Criar o modelo
+        # Criar o modelo para o treinamento
         model = Sequential()
         model.add(Dense(self.neuronios, input_dim=self.n_entrada, kernel_initializer='normal', activation='tanh'))
         model.add(Dense(self.n_saida, activation='softmax'))
 
         model.compile(optimizer=SGD(learning_rate=self.eta), loss=['sparse_categorical_crossentropy', 'mse'], metrics=['accuracy'])
 
+        checkpoint_path = "training_1/cp.ckpt"
+        checkpoint_dir = os.path.dirname(checkpoint_path)
+
+        # Create a callback that saves the model's weights
+        cp_callback = ModelCheckpoint(filepath=checkpoint_path,
+                                                         save_weights_only=True,
+                                                         verbose=1)
         # Treinar o modelo
-        self.historico = model.fit(x_train, y_train, validation_data=(x_val, y_val), batch_size=50, epochs=self.epochs, verbose=0)
+        self.historico = model.fit(x_train, y_train, validation_data=(x_val, y_val), batch_size=50, epochs=self.epochs, verbose=0, callbacks=[cp_callback])
 
         self.mse_history = self.historico.history['loss']  # valores do MSE durante o treinamento
         self.val_mse_history = self.historico.history['val_loss']  # valores do MSE durante o treinamento
