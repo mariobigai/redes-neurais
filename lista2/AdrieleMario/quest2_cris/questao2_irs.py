@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
@@ -8,6 +9,7 @@ from tensorflow.keras.layers import Dense
 from sklearn.metrics import confusion_matrix
 from sklearn.utils.multiclass import unique_labels
 from tensorflow.keras.regularizers import l2
+from tensorflow.keras.callbacks import ModelCheckpoint
 
 # Carregar o conjunto de dados Iris
 iris = datasets.load_iris()
@@ -35,7 +37,10 @@ for rodada in range(1):
     model.add(Dense(5, input_dim=4, activation='tanh'))
     model.add(Dense(3, activation='softmax'))
     model.compile(optimizer='sgd', loss=['sparse_categorical_crossentropy', 'mse'], metrics=['accuracy'])
-    historico = model.fit(x_train, y_train, validation_data=(x_val, y_val), batch_size=5, epochs=100, verbose=0)
+    model_checkpoint_callback = ModelCheckpoint(filepath = './tmp/run.ckpt', monitor='val_loss', save_weigth_only=True,
+                                                mode='min', save_best_only=True, verbose=1)
+
+    historico = model.fit(x_train, y_train, validation_data=(x_val, y_val), batch_size=5, epochs=100, verbose=1, callbacks=[model_checkpoint_callback])
 
     # Avaliar o modelo
     resultado = model.evaluate(x_test, y_test)
@@ -43,6 +48,7 @@ for rodada in range(1):
     accuracy_results.append(historico.history['accuracy'])  # Acurácia é a métrica de índice 2
 
     # Avaliar o modelo no conjunto de teste
+    model.load_weights('./tmp/run.ckpt')
     resultado = model.evaluate(x_test, y_test)
     print("Perda do teste: %.3f" % (resultado[0]))
 
@@ -73,7 +79,7 @@ for rodada in range(1):
     classes = unique_labels(y_test, classes_previstas)
 
     # Criar uma figura e um eixo para o gráfico
-    plt.figure(figsize=(8, 8))
+    plt.figure(figsize=(4, 4))
     ax = plt.gca()
 
     # Criar uma imagem da matriz de confusão
@@ -128,7 +134,7 @@ mse_results = (((mse_results + 1) / 2) * dif) + x_min
 mse_results = mse_results.tolist()
 
 # Crie um gráfico de boxplot dos resultados de MSE
-plt.figure(figsize=(8, 6))
+plt.figure(figsize=(4, 6))
 plt.boxplot(previsao_test)
 plt.xlabel('Rodada')
 plt.ylabel('MSE')
