@@ -10,7 +10,7 @@ def plot_MSE(rede,dados,contador):
     plt.title(f'MSE por época - {dados} - Run:{contador}')
     plt.xlabel('Épocas')
     plt.ylabel('MSE')
-    plt.legend(['Treino', f'Validação - Perda: {rede.resultado[0]}'])
+    plt.legend(['Treino', 'Validação'])
     save_plot_as_image(plt, f'MSE_por_Epocas_{dados}_Run_{contador}.png')
     plt.show()
 
@@ -20,7 +20,7 @@ def plot_ACC(rede,dados,contador):
     plt.title(f'Acurácia por época - {dados} - Run:{contador}')
     plt.xlabel('Épocas')
     plt.ylabel('Acurácia')
-    plt.legend(['Treino', f'Validação - Acerto: {rede.resultado[1]}'])
+    plt.legend(['Treino', f'Validação'])
     save_plot_as_image(plt, f'Acuracia_por_Epocas_{dados}_Run_{contador}.png')
     plt.show()
 
@@ -28,7 +28,7 @@ def plot_MSEt(lista_de_rede, dados):
     cont_redes = 1
     fig, ax = plt.subplots(figsize=(15, 8))
     for rede in lista_de_rede:
-        ax.plot(rede.historico.history['loss'], linestyle='-', linewidth=3, label=f'T: {cont_redes} - Epoch: {rede.min_epoch+1} - {rede.mse_history[rede.min_epoch]}')
+        ax.plot(rede.historico.history['loss'], linestyle='-', linewidth=3, label=f'Run: {cont_redes}')
         cont_redes += 1
     ax.legend()
     ax.grid()
@@ -42,7 +42,7 @@ def plot_MSEv(lista_de_rede, dados):
     cont_redes = 1
     fig, ax = plt.subplots(figsize=(15, 8))
     for rede in lista_de_rede:
-        ax.plot(rede.historico.history['val_loss'], linestyle='-', linewidth=3, label=f'T: {cont_redes} - Perda: {rede.resultado[0]}')
+        ax.plot(rede.historico.history['val_loss'], linestyle='-', linewidth=3, label=f'Run: {cont_redes}')
         cont_redes += 1
     ax.legend()
     ax.grid()
@@ -56,7 +56,7 @@ def plot_ACCt(lista_de_rede, dados):
     cont_redes = 1
     fig, ax = plt.subplots(figsize=(15, 8))
     for rede in lista_de_rede:
-        ax.plot(rede.historico.history['accuracy'], linestyle='-', linewidth=3, label=f'T: {cont_redes}')
+        ax.plot(rede.historico.history['accuracy'], linestyle='-', linewidth=3, label=f'Run: {cont_redes}')
         cont_redes += 1
     ax.legend()
     ax.grid()
@@ -70,7 +70,7 @@ def plot_ACCv(lista_de_rede, dados):
     cont_redes = 1
     fig, ax = plt.subplots(figsize=(15, 8))
     for rede in lista_de_rede:
-        ax.plot(rede.historico.history['val_accuracy'], linestyle='-', linewidth=3, label=f'T: {cont_redes} - Acerto: {rede.resultado[1]}')
+        ax.plot(rede.historico.history['val_accuracy'], linestyle='-', linewidth=3, label=f'Run: {cont_redes}')
         cont_redes += 1
     ax.legend()
     ax.grid()
@@ -114,14 +114,23 @@ def plotMatrizConf(lista_de_rede, dados):
         plt.show()
         contador += 1
 
-def plot_boxplot(lista_de_rede, dados):
-    perdas = [rede.resultado[0] for rede in lista_de_rede]
-
+def plot_boxplot(lista_de_arquitetura, nomes_das_arquiteturas):
+    dados = []
     fig, ax = plt.subplots(figsize=(8, 6))
+    for lista_de_rede in lista_de_arquitetura:
+        mse_list = []
+        for rede in lista_de_rede:
+            previsto = np.array(rede.classes_previstas)
+            real = rede.y_test
 
-    ax.boxplot(perdas)
-    ax.set_title(f'Boxplot do MSE - {dados}')
-    ax.set_xticklabels(['MSE'])
+            erro = real - previsto
+            mse = np.sum(erro**2)/(len(erro))
+            mse_list.append(mse)
 
-    plt.savefig(f'Boxplot do MSE - {dados}.png', dpi=500, format='png', orientation='portrait')
+        dados.append(mse_list)
+    ax.boxplot(dados)
+    ax.set_title(f'Boxplot do MSE dos testes')
+    ax.set_xticklabels(nomes_das_arquiteturas)
+
+    plt.savefig(f'Boxplot do MSE dos testes.png', dpi=500, format='png', orientation='portrait')
     plt.show()

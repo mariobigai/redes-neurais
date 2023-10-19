@@ -1,4 +1,3 @@
-import os
 from sklearn.model_selection import train_test_split
 import numpy as np
 from tensorflow.keras.models import Sequential
@@ -7,6 +6,7 @@ from sklearn.metrics import confusion_matrix
 from sklearn.utils.multiclass import unique_labels
 from tensorflow.keras.optimizers import SGD
 from tensorflow.keras.callbacks import ModelCheckpoint
+from tensorflow.keras.saving import load_model
 
 class MLP:
     def __init__(self,x,y,d,eta,neuronios,n_entrada,n_saida,epochs):
@@ -22,7 +22,6 @@ class MLP:
         self.val_mse_history = []
 
     def mlp(self, arq_run):
-        checkpoint_filepath = './tmp/run' + arq_run
         d1 = self.d[0]
         d2 = self.d[1]
         d3 = self.d[2]
@@ -38,6 +37,8 @@ class MLP:
         x_train, x_temp, y_train, y_temp = train_test_split(dados_normalizados, self.y, test_size=0.3, random_state=42)
         x_val, x_test, y_val, y_test = train_test_split(x_temp, y_temp, test_size=0.5, random_state=42)
 
+        self.y_test = y_test
+
         # Criar o modelo para o treinamento
         model = Sequential()
         model.add(Dense(self.neuronios, input_dim=self.n_entrada, kernel_initializer='normal', activation='tanh'))
@@ -45,42 +46,40 @@ class MLP:
 
         model.compile(optimizer=SGD(learning_rate=self.eta), loss=['sparse_categorical_crossentropy', 'mse'], metrics=['accuracy'])
 
-        checkpoint_path = "training_1/cp.ckpt"
-        checkpoint_dir = os.path.dirname(checkpoint_path)
+        checkpoint_path = arq_run + '.hdf5'
 
         # Create a callback that saves the model's weights
         cp_callback = ModelCheckpoint(filepath=checkpoint_path,
-                                                         save_weights_only=True,
-                                                         verbose=1)
+                                         save_best_only=True,
+                                         mode='min', verbose=0)
         # Treinar o modelo
-        self.historico = model.fit(x_train, y_train, validation_data=(x_val, y_val), batch_size=50, epochs=self.epochs, verbose=0, callbacks=[cp_callback])
+        self.historico = model.fit(x_train, y_train, validation_data=(x_val, y_val), batch_size=32, epochs=self.epochs, verbose=0, callbacks=[cp_callback])
 
         self.mse_history = self.historico.history['loss']  # valores do MSE durante o treinamento
-        self.val_mse_history = self.historico.history['val_loss']  # valores do MSE durante o treinamento
+        self.val_mse_history = self.historico.history['val_loss']  # valores da MSE para validação durante o treinamento
         self.acc_history = self.historico.history['accuracy']  # valores do acuracia durante o treinamento
+        self.val_acc_history = self.historico.history['val_accuracy']
 
         self.min_epoch = np.argmin(self.val_mse_history)  # Encontra o índice da época com o menor valor de erro
-        print(f"A época com o menor valor de erro na validação foi {self.min_epoch + 1} com valor {np.min(self.val_mse_history)}")
-
-        print("MSE no teste: %.3f" % self.mse_history[-1])
-        print("Acurácia no teste: %.3f" % self.acc_history[-1])
 
         # Avaliar o modelo no conjunto de teste
-        self.resultado = model.evaluate(x_test, y_test, verbose = 0)
 
-        print("MSE na validação: %.3f" % (self.resultado[0]))
-        print("Acurácia na validação: %.3f" % (self.resultado[1]))
+        # carrega o ultimo checkpoint do treino
+        model_test = load_model(checkpoint_path)
+
+        self.resultado = model_test.evaluate(x_test, y_test, verbose = 0)
 
         # Fazer previsões no conjunto de teste
-        previsoes = model.predict(x_test,verbose=0)
+        previsoes = model_test.predict(x_test,verbose=0)
 
+        # Desnormalização
         previsoes = (((previsoes + 1) / 2) * dif) + x_min
 
         # Converter as previsões em classes (arredondamento para o valor mais próximo)
-        classes_previstas = np.argmax(previsoes, axis=1)
+        self.classes_previstas = np.argmax(previsoes, axis=1)
 
         # Calcular a matriz de confusão
-        self.matriz_confusao = confusion_matrix(y_test, classes_previstas)
+        self.matriz_confusao = confusion_matrix(y_test, self.classes_previstas)
 
         # Obter as classes únicas presentes nos rótulos verdadeiros e previstos
-        self.classes = unique_labels(y_test, classes_previstas)
+        self.classes = unique_labels(y_test, self.classes_previstas)
