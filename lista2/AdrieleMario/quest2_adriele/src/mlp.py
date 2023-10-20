@@ -58,7 +58,7 @@ class MLP:
         self.mse_history = self.historico.history['loss']  # valores do MSE durante o treinamento
         self.val_mse_history = self.historico.history['val_loss']  # valores da MSE para validação durante o treinamento
         self.acc_history = self.historico.history['accuracy']  # valores do acuracia durante o treinamento
-        self.val_acc_history = self.historico.history['val_accuracy']
+        self.val_acc_history = self.historico.history['val_accuracy'] # valores do acuracia para validação durante o treinamento
 
         self.min_epoch = np.argmin(self.val_mse_history)  # Encontra o índice da época com o menor valor de erro
 

@@ -29,12 +29,13 @@ for i in range(2):
     print(f'{neuronios}N1HL' + 60 * '--')
     contador = 1
     #Cria as 10MLP's
-    wine_list = [(MLP(x,y,d_possiveis,eta,neuronios,entradas,saidas,epochs)) for _ in range(5)]
+    wine_list = [(MLP(x,y,d_possiveis,eta,neuronios,entradas,saidas,epochs)) for _ in range(10)]
     #Treina as 10 MLP's
     for wine in wine_list:
         filepath = str(neuronios) + 'N1HL-run_' + str(contador) + '_'
         wine.mlp(filepath)
-        print(wine.classes_previstas)
+        print('Previstas:' + str(wine.classes_previstas))
+        print('Reais: '+ str(wine.y_test))
         print(f'Run{contador} - '+
               f'Melhor MSE da validação: {np.min(wine.val_mse_history):.3f} na época {wine.min_epoch + 1}; ' +
               f'MSE no treino: {wine.mse_history[-1]:.3f}; '+
