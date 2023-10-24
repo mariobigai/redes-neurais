@@ -18,14 +18,14 @@ wine = wine.values
 neuronios = 10 #quantidade de neuronios
 entradas = 13 #quantidade de entradas
 saidas = 3 #quantidade de saidas
-epochs = 150
+epochs = 1000
 eta = 0.01
 d_possiveis = [1,2,3]
 lista_de_arquiteturas = []
-nome_das_arquiteturas = ['10N1HL', '20N1HL']
+nome_das_arquiteturas = ['10N1HL', '20N1HL', '30N1HL', '40N1HL', '50N1HL']
 
 #FAZ A VARREDURA DOS NEURONIOS
-for i in range(2):
+for i in range(len(nome_das_arquiteturas)):
     print(f'{neuronios}N1HL' + 60 * '--')
     contador = 1
     #Cria as 10MLP's

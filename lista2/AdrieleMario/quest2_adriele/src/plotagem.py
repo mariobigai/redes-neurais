@@ -12,7 +12,8 @@ def plot_MSE(rede,dados,contador):
     plt.ylabel('MSE')
     plt.legend(['Treino', 'Validação'])
     save_plot_as_image(plt, f'MSE_por_Epocas_{dados}_Run_{contador}.png')
-    plt.show()
+    plt.close('all')
+    #plt.show()
 
 def plot_ACC(rede,dados,contador):
     plt.plot(rede.historico.history['accuracy'])
@@ -22,7 +23,8 @@ def plot_ACC(rede,dados,contador):
     plt.ylabel('Acurácia')
     plt.legend(['Treino', f'Validação'])
     save_plot_as_image(plt, f'Acuracia_por_Epocas_{dados}_Run_{contador}.png')
-    plt.show()
+    plt.close('all')
+    #plt.show()
 
 def plot_MSEt(lista_de_rede, dados):
     cont_redes = 1
@@ -36,7 +38,8 @@ def plot_MSEt(lista_de_rede, dados):
     plt.xlabel('Época')
     plt.ylabel('MSE')
     plt.savefig(f'MSE por Épocas T - {dados}.png', dpi=500, format='png',orientation='portrait')
-    plt.show()
+    plt.close('all')
+    #plt.show()
 
 def plot_MSEv(lista_de_rede, dados):
     cont_redes = 1
@@ -50,7 +53,8 @@ def plot_MSEv(lista_de_rede, dados):
     plt.xlabel('Época')
     plt.ylabel('MSE')
     plt.savefig(f'MSE por Épocas V - {dados}.png', dpi=500, format='png', orientation='portrait')
-    plt.show()
+    plt.close('all')
+    #plt.show()
 
 def plot_ACCt(lista_de_rede, dados):
     cont_redes = 1
@@ -64,7 +68,8 @@ def plot_ACCt(lista_de_rede, dados):
     plt.xlabel('Época')
     plt.ylabel('MSE')
     plt.savefig(f'ACC por Épocas T - {dados}.png', dpi=500, format='png',orientation='portrait')
-    plt.show()
+    plt.close('all')
+    #plt.show()
 
 def plot_ACCv(lista_de_rede, dados):
     cont_redes = 1
@@ -78,7 +83,8 @@ def plot_ACCv(lista_de_rede, dados):
     plt.xlabel('Época')
     plt.ylabel('MSE')
     plt.savefig(f'ACC por Épocas V - {dados}.png', dpi=500, format='png',orientation='portrait')
-    plt.show()
+    plt.close('all')
+    #plt.show()
 
 def plotMatrizConf(lista_de_rede, dados):
     contador = 1
@@ -111,7 +117,8 @@ def plotMatrizConf(lista_de_rede, dados):
         #Adicionar uma legenda
         plt.title(f'Matriz de Confusão - {dados} - T:{contador}')
         save_plot_as_image(plt, f'Matriz_de_Confusão{dados}_Run_{contador}.png')
-        plt.show()
+        plt.close('all')
+        #plt.show()
         contador += 1
 
 def plot_boxplot(lista_de_arquitetura, nomes_das_arquiteturas):
@@ -133,4 +140,5 @@ def plot_boxplot(lista_de_arquitetura, nomes_das_arquiteturas):
     ax.set_xticklabels(nomes_das_arquiteturas)
 
     plt.savefig(f'Boxplot do MSE dos testes.png', dpi=500, format='png', orientation='portrait')
-    plt.show()
+    plt.close('all')
+    #plt.show()
